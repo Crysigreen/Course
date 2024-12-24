@@ -6,19 +6,19 @@ package paymentservice;
 
 // Сервис для обработки платежей
 service PaymentService {
-  rpc ProcessPayment (PaymentRequest) returns (PaymentResponse);
+    rpc ProcessPayment (PaymentRequest) returns (PaymentResponse);
 }
 
 // Запрос на обработку платежа
 message PaymentRequest {
-  string user_id = 1;
-  double amount = 2;
-  string payment_method = 3;
+    string user_id = 1;
+    double amount = 2;
+    string payment_method = 3;
 }
 
 // Ответ после обработки платежа
 message PaymentResponse {
-  bool success = 1;
-  string transaction_id = 2;
-  string message = 3;
+    bool success = 1;
+    string transaction_id = 2;
+    string message = 3;
 }

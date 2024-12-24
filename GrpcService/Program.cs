@@ -1,40 +1,28 @@
-using EasyNetQ;
-using EasyNetQ.DI;
-using EasyNetQ.Serialization.SystemTextJson;
 using GrpcService.Services;
 
-namespace GrpcService
+var builder = WebApplication.CreateBuilder(args);
+
+// Конфигурация Kestrel для gRPC
+builder.WebHost.ConfigureKestrel(options =>
 {
-    public class Program
+    options.ListenAnyIP(5055, listenOptions =>
     {
-        public static void Main(string[] args)
-        {
-            CreateHostBuilder(args).Build().Run();
-        }
+        listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2;
+    });
+    options.ListenAnyIP(5051, listenOptions =>
+    {
+        listenOptions.UseHttps();
+        listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2;
+    });
+});
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.ConfigureServices(services =>
-                    {
-                        services.AddGrpc();
-                        services.AddSingleton<IBus>(_ => RabbitHutch.CreateBus("host=localhost", serviceRegister =>
-                            serviceRegister.Register<ISerializer, SystemTextJsonSerializer>()));
-                    });
+// Добавляем gRPC
+builder.Services.AddGrpc();
 
-                    webBuilder.Configure(app =>
-                    {
-                        app.UseRouting();
-                        app.UseEndpoints(endpoints =>
-                        {
-                            endpoints.MapGrpcService<PaymentService>();
-                            endpoints.MapGet("/", async context =>
-                            {
-                                await context.Response.WriteAsync("Payment gRPC Server is running...");
-                            });
-                        });
-                    });
-                });
-    }
-}
+var app = builder.Build();
+
+// Маршруты gRPC
+app.MapGrpcService<PaymentServiceImpl>();
+app.MapGet("/", () => "gRPC Payment Service is running");
+
+app.Run();

@@ -4,39 +4,59 @@ using EasyNetQ.Serialization.SystemTextJson;
 using System;
 using System.Threading.Tasks;
 using EasyNetQ.DI;
-using GrpcService.Messages;
-using Payment;
 
 
 
 namespace GrpcService.Services
 {
-    public class PaymentService : Payments.PaymentsBase
+    public class PaymentServiceImpl : PaymentService.PaymentServiceBase
     {
-        private readonly IBus _bus;
-
-        public PaymentService()
+        public override Task<PaymentResponse> ProcessPayment(PaymentRequest request, ServerCallContext context)
         {
-            _bus = RabbitHutch.CreateBus("host=localhost", serviceRegister =>
-                serviceRegister.Register<ISerializer, SystemTextJsonSerializer>());
+            try
+            {
+                Console.WriteLine($"[x] Обработка платежа: UserId={request.UserId}, Amount={request.Amount}, PaymentMethod={request.PaymentMethod}");
+
+                // Пример логики обработки платежа
+                if (request.Amount <= 0)
+                {
+                    Console.WriteLine($"[!] Некорректная сумма платежа: {request.Amount}");
+                    return Task.FromResult(new PaymentResponse
+                    {
+                        Success = false,
+                        TransactionId = string.Empty,
+                        Message = "Invalid payment amount"
+                    });
+                }
+
+                var transactionId = GenerateTransactionId(request.UserId, request.Amount);
+
+                Console.WriteLine($"[✓] Платеж успешно обработан. TransactionId={transactionId}");
+
+                return Task.FromResult(new PaymentResponse
+                {
+                    Success = true,
+                    TransactionId = transactionId,
+                    Message = $"Payment processed successfully using {request.PaymentMethod}"
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[!] Ошибка при выполнении метода <<ProcessPayment>>: {ex.Message}");
+                throw;
+            }
         }
 
-        public override Task<Payment.PaymentResponse> ProcessPayment(Payment.PaymentRequest request, ServerCallContext context)
+        private string GenerateTransactionId(string userId, double amount)
         {
-            Console.WriteLine($"Processing payment for User: {request.UserId}, Amount: {request.Amount}, Method: {request.PaymentMethod}");
+            var combinedString = $"{userId}-{amount}-{DateTime.UtcNow.Ticks}";
 
-            var transactionId = Guid.NewGuid().ToString();
-            var success = request.Amount > 0;
-
-            var auditMessage = $"Processed payment: UserId={request.UserId}, Amount={request.Amount}, Method={request.PaymentMethod}, Success={success}, TransactionId={transactionId}";
-            _bus.PubSub.Publish(auditMessage);
-
-            return Task.FromResult(new Payment.PaymentResponse
+            using (var sha256 = System.Security.Cryptography.SHA256.Create())
             {
-                Success = success,
-                TransactionId = transactionId,
-                Message = success ? "Payment processed successfully" : "Payment failed"
-            });
+                var hashBytes = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(combinedString));
+
+                return BitConverter.ToString(hashBytes).Replace("-", "").Substring(0, 16).ToUpper();
+            }
         }
     }
 }
