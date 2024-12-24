@@ -8,7 +8,7 @@ namespace Course.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-        public DbSet<Courses> Courses { get; set; }
+        public DbSet<Coursess> Courses { get; set; }
         public DbSet<Subscription> Subscriptions { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<User> Users { get; set; }
@@ -22,9 +22,9 @@ namespace Course.Data
             );
 
             // Seed Courses
-            modelBuilder.Entity<Courses>().HasData(
-                new Courses { Id = 1, Title = "C# Basics", Description = "Learn C# from scratch", Price = 99.99M, MaxParticipants = 50, CurrentParticipants = 10 },
-                new Courses { Id = 2, Title = "ASP.NET Core Advanced", Description = "Deep dive into ASP.NET Core", Price = 199.99M, MaxParticipants = 30, CurrentParticipants = 5 }
+            modelBuilder.Entity<Coursess>().HasData(
+                new Coursess { Id = 1, Title = "C# Basics", Description = "Learn C# from scratch", Price = 99.99M, MaxParticipants = 50, CurrentParticipants = 10 },
+                new Coursess { Id = 2, Title = "ASP.NET Core Advanced", Description = "Deep dive into ASP.NET Core", Price = 199.99M, MaxParticipants = 30, CurrentParticipants = 5 }
             );
 
             // Seed Subscriptions

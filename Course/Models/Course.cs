@@ -1,6 +1,6 @@
 ﻿namespace Course.Models
 {
-    public class Courses
+    public class Coursess
     {
         public int Id { get; set; }
         public string Title { get; set; }

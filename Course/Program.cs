@@ -3,6 +3,7 @@ using Course.Services.Contarcts;
 using Course.Services;
 using Course.Data;
 using Microsoft.EntityFrameworkCore;
+using Courses.Hubs;
 
 namespace Course
 {
@@ -26,6 +27,8 @@ namespace Course
             builder.Services.AddScoped<IPaymentService, PaymentService>();
             builder.Services.AddScoped<IUserService, UserService>();
 
+            builder.Services.AddSignalR();
+
 
             var app = builder.Build();
 
@@ -44,12 +47,20 @@ namespace Course
                 //dbContext.Database.EnsureCreated();
             }
 
+            app.UseStaticFiles();
+
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
 
 
             app.MapControllers();
+
+            // Маршрут для SignalR
+            app.MapHub<PaymentHub>("/paymentHub");
+
+            // Маршрут по умолчанию на index.html
+            app.MapFallbackToFile("index.html");
 
             app.Run();
         }

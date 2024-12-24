@@ -9,10 +9,10 @@ namespace Course.Services
         private readonly ApplicationDbContext _context;
         public CourseService(ApplicationDbContext context) => _context = context;
 
-        public IEnumerable<Courses> GetAllCourses() => _context.Courses.ToList();
-        public Courses GetCourseById(int id) => _context.Courses.Find(id);
-        public void AddCourse(Courses course) { _context.Courses.Add(course); _context.SaveChanges(); }
-        public void UpdateCourse(int id, Courses updatedCourse)
+        public IEnumerable<Coursess> GetAllCourses() => _context.Courses.ToList();
+        public Coursess GetCourseById(int id) => _context.Courses.Find(id);
+        public void AddCourse(Coursess course) { _context.Courses.Add(course); _context.SaveChanges(); }
+        public void UpdateCourse(int id, Coursess updatedCourse)
         {
             var course = GetCourseById(id);
             if (course != null)

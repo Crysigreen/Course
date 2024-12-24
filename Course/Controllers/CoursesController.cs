@@ -27,14 +27,14 @@ namespace Course.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] Courses course)
+        public IActionResult Create([FromBody] Coursess course)
         {
             _courseService.AddCourse(course);
             return CreatedAtAction(nameof(GetById), new { id = course.Id }, course);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] Courses course)
+        public IActionResult Update(int id, [FromBody] Coursess course)
         {
             _courseService.UpdateCourse(id, course);
             return NoContent();
