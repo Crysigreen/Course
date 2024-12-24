@@ -8,7 +8,6 @@ namespace AuditService
         {
             Console.WriteLine("Audit Service is starting...");
 
-            // Подключение к RabbitMQ через RabbitHutch
             var bus = RabbitHutch.CreateBus("host=localhost");
 
             string queueName = "audit_queue";

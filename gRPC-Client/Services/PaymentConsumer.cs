@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EasyNetQ.Serialization.SystemTextJson;
+using EasyNetQ.DI;
 
 namespace gRPC_Client.Services
 {
@@ -16,7 +18,8 @@ namespace gRPC_Client.Services
 
         public PaymentConsumer()
         {
-            _bus = RabbitHutch.CreateBus("amqp://guest:guest@localhost:5672");
+            _bus = RabbitHutch.CreateBus("host=localhost", serviceRegister =>
+                serviceRegister.Register<ISerializer, SystemTextJsonSerializer>());
         }
 
         public void StartListening()
